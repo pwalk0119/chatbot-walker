@@ -1,0 +1,6 @@
+PNW Dean of Students Office Director Verbal Explanation:
+Students have trouble finding answers to common university questions. Information is spread across different webpages and policy documents, and our staff spend a lot of time answering repetitive questions. We would like some kind of chatbot that students can use to get answers. 
+Jane is our student service coordinator. Jane, could you please explain the details?
+
+Jane’s Verbal Explanation:
+Sure. Most questions are about things like adding or dropping classes, academic standing, grade appeals, financial aid deadlines, registration, and who students should contact. A big concern is that we cannot have the chatbot give students incorrect policy information. 
