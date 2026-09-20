@@ -1,0 +1,185 @@
+openapi: 3.0.3
+info:
+  title: PNW Policy & Process Chatbot API
+  version: "1.0.0"
+  description: >
+    Contract between the embeddable widget (frontend) and the chatbot backend.
+    Implements FR-001 through FR-013 of specs/001-university-info-chatbot/spec.md.
+
+paths:
+  /api/chat/conversations:
+    post:
+      summary: Start a new conversation
+      operationId: startConversation
+      responses:
+        "201":
+          description: Conversation created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+
+  /api/chat/conversations/{conversationId}/messages:
+    post:
+      summary: Send a student message and receive the chatbot's reply
+      operationId: sendMessage
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentMessageRequest"
+      responses:
+        "200":
+          description: >
+            Chatbot reply. Either a direct cited answer, a clarifying question
+            (campus/academic level per FR-004/FR-013), or an escalation
+            (FR-008) — never a bare guess.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatbotReply"
+        "404":
+          description: Unknown conversationId
+        "422":
+          description: Empty or invalid message text
+
+  /api/chat/health:
+    get:
+      summary: Liveness/readiness probe
+      operationId: health
+      responses:
+        "200":
+          description: Service is up and can reach its vector store and LLM provider
+
+components:
+  schemas:
+    Conversation:
+      type: object
+      required: [id, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        campus:
+          type: string
+          enum: [Hammond, Westville]
+          nullable: true
+        academicLevel:
+          type: string
+          enum: [Undergraduate, Graduate]
+          nullable: true
+        status:
+          type: string
+          enum: [active, ended]
+
+    StudentMessageRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          minLength: 1
+          description: The student's free-text question or answer to a clarifying question.
+        # Optional client-supplied hints; the backend still applies FR-004/FR-013
+        # slot-filling logic rather than trusting these blindly.
+        statedCampus:
+          type: string
+          enum: [Hammond, Westville]
+          nullable: true
+        statedAcademicLevel:
+          type: string
+          enum: [Undergraduate, Graduate]
+          nullable: true
+
+    ChatbotReply:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [answer, clarifying_question, escalation]
+          description: >
+            "answer" = direct cited response (FR-001/FR-003).
+            "clarifying_question" = asking for campus or academic level before answering (FR-004/FR-013).
+            "escalation" = no confident answer found; names a department instead (FR-008).
+      discriminator:
+        propertyName: type
+      oneOf:
+        - $ref: "#/components/schemas/AnswerReply"
+        - $ref: "#/components/schemas/ClarifyingQuestionReply"
+        - $ref: "#/components/schemas/EscalationReply"
+
+    AnswerReply:
+      type: object
+      required: [type, responseText, citations]
+      properties:
+        type:
+          type: string
+          enum: [answer]
+        responseText:
+          type: string
+        citations:
+          type: array
+          minItems: 1
+          description: MUST be non-empty for every "answer" reply (FR-003).
+          items:
+            $ref: "#/components/schemas/Citation"
+
+    ClarifyingQuestionReply:
+      type: object
+      required: [type, promptText, slot]
+      properties:
+        type:
+          type: string
+          enum: [clarifying_question]
+        promptText:
+          type: string
+          example: "Are you asking about the Hammond or Westville campus?"
+        slot:
+          type: string
+          enum: [campus, academicLevel]
+
+    EscalationReply:
+      type: object
+      required: [type, explanationText, department]
+      properties:
+        type:
+          type: string
+          enum: [escalation]
+        explanationText:
+          type: string
+          description: Tells the student the bot does not have this information (FR-008).
+        department:
+          $ref: "#/components/schemas/DepartmentContact"
+
+    Citation:
+      type: object
+      required: [title, url]
+      properties:
+        sourceDocumentId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        url:
+          type: string
+          format: uri
+
+    DepartmentContact:
+      type: object
+      required: [name, contactMethod]
+      properties:
+        name:
+          type: string
+          example: "Office of the Registrar"
+        contactMethod:
+          type: string
+          description: A link, email, or phone number (informational handoff only, per spec Assumptions).

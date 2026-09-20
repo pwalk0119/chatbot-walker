@@ -8,6 +8,14 @@
 
 **Input**: User description: "the two .pdf documents and the one .txt file" — synthesized from `Dean_of_Students_Interview.txt`, `Compiled Initial Corpus Review.pdf`, and `Demo Project_ Compiled Interview Notes.pdf`
 
+## Clarifications
+
+### Session 2026-09-20
+
+- Q: Should the chatbot store and retain conversation transcripts, and if so, for how long? → A: Retain de-identified/anonymized transcripts only, for a limited period (e.g., 90 days), for quality improvement (Option B)
+- Q: Does the chatbot interface itself need to meet a specific accessibility standard, such as WCAG 2.1 AA? → A: Yes — must meet WCAG 2.1 AA (Option A)
+- Q: Should the chatbot ask which academic level a student is at (undergraduate or graduate) when a question's answer differs by level, the same way it asks for campus? → A: Yes — ask academic level when needed, mirroring the campus-clarification requirement (Option A)
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Get a direct answer to a common policy or deadline question (Priority: P1)
@@ -62,7 +70,7 @@ A student asks a question the chatbot cannot confidently answer from its source 
 - How does the chatbot handle a question about information that exists but is only reachable behind a button, pop-up, tab, or expandable section on the source page (not present in the static top-level page content)?
 - How does the chatbot handle a question that is entirely outside university policy/process topics (off-topic chit-chat or unrelated subject matter)?
 - How does the chatbot handle a question referencing a program, course, or policy that does not exist or cannot be found anywhere in the source corpus?
-- What happens when a student's question is ambiguous about which academic level applies (undergraduate vs. graduate), where the answer differs by level (e.g., plan of study requirements)?
+- When a question's answer differs by academic level (e.g., plan of study requirements) and the student hasn't stated whether they're undergraduate or graduate, the chatbot asks for their academic level before answering, the same way it asks for campus (see FR-013).
 
 ## Requirements *(mandatory)*
 
@@ -78,6 +86,9 @@ A student asks a question the chatbot cannot confidently answer from its source 
 - **FR-008**: When the chatbot cannot find a confident answer in its source corpus, it MUST tell the student it does not have the answer and MUST identify the specific department, office, or contact who can help, rather than guessing or fabricating a policy answer.
 - **FR-009**: The chatbot MUST NOT attempt to perform or complete personalized, account-specific actions or diagnoses (e.g., resolving an individual student's registration error, filling out their plan of study) and MUST instead direct the student to the appropriate office for personalized help.
 - **FR-010**: When source pages provide fragmented course/prerequisite information (split across pop-ups, expandable sections, or campus tags), the chatbot MUST combine that information into a single clear summary for the student.
+- **FR-011**: The chatbot system MUST retain conversation transcripts only in de-identified/anonymized form, MUST NOT keep them longer than 90 days, and MUST use them only for answer-quality improvement, not to build or store an individual student profile.
+- **FR-012**: The chatbot interface MUST conform to WCAG 2.1 Level AA accessibility standards, so students using assistive technology can ask questions and read answers without barriers.
+- **FR-013**: When a question's correct answer depends on academic level (undergraduate vs. graduate), the chatbot MUST ask the student to specify their level before giving a final answer, mirroring the campus-clarification behavior in FR-004.
 
 ### Key Entities
 
@@ -96,6 +107,7 @@ A student asks a question the chatbot cannot confidently answer from its source 
 - **SC-004**: At least 90% of test questions whose answer depends on campus (Hammond vs. Westville) result in the chatbot asking for or correctly using the campus before giving a final answer.
 - **SC-005**: In usability testing, at least 80% of student participants rate the chatbot's answers as accurate, current, and easy to understand.
 - **SC-006**: Repetitive questions to Dean of Students Office staff on the covered topics measurably decrease after rollout, as reported by office staff.
+- **SC-007**: An independent accessibility audit confirms the chatbot interface meets WCAG 2.1 AA with zero critical or serious violations before launch.
 
 ## Assumptions
 
