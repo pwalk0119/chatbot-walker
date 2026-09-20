@@ -1,1 +1,1 @@
-# test
+# speckit-clarify-plan
