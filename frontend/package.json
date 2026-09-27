@@ -1,0 +1,32 @@
+{
+  "name": "pnw-chatbot-widget",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Embeddable chat widget for the PNW Policy & Process Q&A Chatbot",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run tests/unit --passWithNoTests",
+    "test:a11y": "vitest run tests/a11y --passWithNoTests",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "axe-core": "^4.10.0",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.12.0",
+    "jsdom": "^25.0.0",
+    "prettier": "^3.9.9",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.70.1",
+    "vite": "^6.0.0",
+    "vitest": "^4.1.11"
+  }
+}
