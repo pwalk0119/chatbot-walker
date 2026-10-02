@@ -1,0 +1,83 @@
+# Offices the chatbot can route a student to when it cannot answer (FR-008).
+# The handoff is informational only: name + how to reach them (spec Assumptions).
+#
+# Every contact_method URL below was confirmed to load on pnw.edu (2026-10-02).
+# Before launch, have the Dean of Students Office confirm each office, add phone/email
+# where wanted, and add any office students commonly need that is missing here
+# (e.g., parking, accessibility services).
+#
+# campus: Hammond | Westville | Both  (omit when the office serves both the same way)
+# topics: lowercase tags the escalation router matches against a question.
+
+contacts:
+  - name: Office of the Registrar
+    contact_method: https://www.pnw.edu/registrar/
+    topics:
+      - registration
+      - add/drop
+      - withdrawal
+      - transcripts
+      - enrollment verification
+      - grades
+      - academic calendar
+      - registration errors
+
+  - name: Office of Financial Aid
+    contact_method: https://www.pnw.edu/financial-aid/
+    topics:
+      - financial aid
+      - fafsa
+      - scholarships
+      - loans
+      - grants
+      - financial aid deadlines
+      - satisfactory academic progress
+
+  - name: Dean of Students Office
+    contact_method: https://www.pnw.edu/dean-of-students/
+    topics:
+      - student conduct
+      - classroom behavior
+      - academic integrity
+      - student handbook
+      - grade appeals
+      - student concerns
+      - general questions
+
+  - name: Academic Advising
+    contact_method: https://www.pnw.edu/advising/
+    topics:
+      - academic advising
+      - plan of study
+      - course selection
+      - prerequisites
+      - academic standing
+      - probation
+      - degree requirements
+
+  - name: Bursar Office
+    contact_method: https://www.pnw.edu/bursar/
+    topics:
+      - tuition
+      - billing
+      - payments
+      - refunds
+      - fees
+
+  - name: Graduate Studies
+    contact_method: https://www.pnw.edu/graduate-studies/
+    topics:
+      - graduate programs
+      - graduate admissions
+      - thesis
+      - graduate policies
+
+  - name: Information Technology Services
+    contact_method: https://www.pnw.edu/information-technology/
+    topics:
+      - information services policies
+      - accounts
+      - passwords
+      - email
+      - wifi
+      - technology
