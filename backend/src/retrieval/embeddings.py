@@ -29,7 +29,11 @@ class Embedder:
             from sentence_transformers import SentenceTransformer
 
             model = SentenceTransformer(self.model_name)
-            dim = model.get_sentence_embedding_dimension()
+            # Renamed in newer sentence-transformers; support both.
+            get_dim = getattr(model, "get_embedding_dimension", None)
+            if get_dim is None:
+                get_dim = model.get_sentence_embedding_dimension
+            dim = get_dim()
             if dim != EMBEDDING_DIM:
                 raise RuntimeError(
                     f"{self.model_name} produces {dim}-dim vectors but the database "
@@ -52,4 +56,4 @@ class Embedder:
 @lru_cache
 def get_embedder() -> Embedder:
     """Process-wide embedder; the model loads once, on first use."""
-    return Embedder(get_settings().embedding_model)
+    return Embedder(get_settings(require=()).embedding_model)

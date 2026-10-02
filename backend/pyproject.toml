@@ -8,6 +8,8 @@ requires-python = ">=3.11"
 testpaths = ["tests"]
 pythonpath = ["."]
 asyncio_mode = "auto"
+# PyMuPDF's SWIG bindings emit these on import; they are not actionable here.
+filterwarnings = ["ignore:builtin type .* has no __module__ attribute:DeprecationWarning"]
 
 [tool.ruff]
 line-length = 100

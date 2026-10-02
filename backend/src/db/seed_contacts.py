@@ -10,7 +10,7 @@ from pathlib import Path
 import psycopg
 import yaml
 
-from src.config import BACKEND_DIR, ConfigError, get_settings
+from src.config import BACKEND_DIR, DATABASE_ONLY, ConfigError, get_settings
 from src.models.enums import ContactCampus
 
 CONTACTS_FILE = BACKEND_DIR / "config" / "department_contacts.yaml"
@@ -51,7 +51,7 @@ def seed(conn: psycopg.Connection, contacts: list[dict]) -> int:
 
 def main() -> int:
     try:
-        settings = get_settings()
+        settings = get_settings(require=DATABASE_ONLY)
     except ConfigError as exc:
         print(exc, file=sys.stderr)
         return 1

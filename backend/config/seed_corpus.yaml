@@ -1,0 +1,91 @@
+# Seed corpus for the offline ingestion pipeline (T031).
+# Run (from backend/):  python -m src.ingestion.run --config config/seed_corpus.yaml
+#
+# Sources come from "Compiled Initial Corpus Review.pdf". Each seed is crawled together
+# with the child pages / PDFs it links to, within the limits below; children inherit
+# the seed's campus, academic_level and term metadata.
+#
+# Fields:
+#   name             short id, used with --only
+#   url              the seed page or PDF
+#   campus           Hammond | Westville | Both | N/A
+#   academic_level   Undergraduate | Graduate | Both | N/A
+#   term             evergreen, or a term such as "Fall 2026"; past terms are excluded at
+#                    retrieval time (FR-005). Pages that list several terms (the academic
+#                    schedule) are evergreen: each chunk carries its own term heading.
+#   max_depth        0 = seed only; 1 = also what it links to; 2 = one level further
+#   follow           path prefixes of child pages worth following (others are ignored)
+#   follow_pdfs      also follow same-site PDF links (default true)
+#   max_pages        cap on documents taken from this seed
+
+seeds:
+  # Multi-level page: the fine payment/appeal steps live on the forms page and in the
+  # violation appeal PDF it links to (FR-006).
+  - name: parking-regulations
+    url: https://www.pnw.edu/getting-to-pnw/parking-and-fees/regulations-and-enforcement/
+    campus: Both
+    academic_level: N/A
+    term: evergreen
+    max_depth: 2
+    follow:
+      - /getting-to-pnw/parking-and-fees/
+      - /public-safety/forms/
+    max_pages: 8
+
+  # Complex per-term deadline tables (FR-007), plus the refund/withdrawal and
+  # final exam schedules the page points students to.
+  - name: academic-schedule
+    url: https://www.pnw.edu/registrar/academic-schedule/
+    campus: Both
+    academic_level: N/A
+    term: evergreen
+    max_depth: 1
+    follow:
+      - /registrar/academic-schedule/
+      - /registrar/guides/academic-scheduling/final-exam-schedule/
+    max_pages: 5
+
+  - name: academic-integrity-policy
+    url: https://www.pnw.edu/dean-of-students/policies/academic-integrity-policy/
+    campus: Both
+    academic_level: N/A
+    term: evergreen
+
+  - name: accessibility
+    url: https://www.pnw.edu/accessibility-at-purdue-university-northwest/
+    campus: Both
+    academic_level: N/A
+    term: evergreen
+
+  # The handbook PDF named in the corpus review now returns 404
+  # (concurrent-enrollment/.../STUDENT-HANDBOOK.pdf); this is its current home.
+  - name: student-handbook
+    url: https://www.pnw.edu/dean-of-students/student-handbook/
+    campus: Both
+    academic_level: N/A
+    term: evergreen
+
+  - name: classroom-behavior-policy
+    url: https://www.pnw.edu/faculty-senate/wp-content/uploads/sites/71/2021/01/Classroom-Behavior-Policy.pdf
+    campus: Both
+    academic_level: N/A
+    term: evergreen
+
+  - name: information-services-policies
+    url: https://www.pnw.edu/information-services/policies/
+    campus: Both
+    academic_level: N/A
+    term: evergreen
+    max_depth: 1
+    follow:
+      - /information-technology/policies/
+    follow_pdfs: false
+    max_pages: 6
+
+# Not ingested:
+# - catalog.pnw.edu pages (program prerequisites; graduate admission):
+#     https://catalog.pnw.edu/preview_program.php?catoid=5&poid=1338&returnto=271
+#     https://catalog.pnw.edu/content.php?catoid=4&navoid=154
+#   The catalog answers automated requests with an AWS WAF bot challenge (HTTP 202,
+#   x-amzn-waf-action: challenge). The crawler does not try to get around bot
+#   protection; ask PNW for an export or API access to add the catalog.

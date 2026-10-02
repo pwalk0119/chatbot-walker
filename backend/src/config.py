@@ -8,8 +8,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 
-# Settings that have no safe default; the app refuses to start without them.
+# Settings with no safe default. The API needs both; each CLI asks only for what it uses
+# (ingestion, migrations and seeding need the database but never call Claude).
 REQUIRED = ("DATABASE_URL", "ANTHROPIC_API_KEY")
+DATABASE_ONLY = ("DATABASE_URL",)
 
 
 class ConfigError(RuntimeError):
@@ -23,8 +25,8 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    database_url: str
-    anthropic_api_key: SecretStr
+    database_url: str | None = None
+    anthropic_api_key: SecretStr | None = None
     # LLM_* rather than CLAUDE_*: Claude Code exports CLAUDE_* variables of its own,
     # which would silently override these in any shell it runs in.
     llm_model: str = "claude-opus-5-5"
@@ -41,19 +43,27 @@ class Settings(BaseSettings):
 
 
 @lru_cache
-def get_settings() -> Settings:
-    """Load settings once, failing fast with a readable message if anything is wrong."""
+def get_settings(require: tuple[str, ...] = REQUIRED) -> Settings:
+    """Load settings once, failing fast with a readable message if anything is wrong.
+
+    `require` names the settings the caller cannot run without.
+    """
+    problems = []
     try:
-        return Settings()
+        settings = Settings()
     except ValidationError as exc:
-        problems = []
+        settings = None
         for err in exc.errors():
             name = str(err["loc"][0]).upper() if err["loc"] else "?"
-            if err["type"] == "missing" and name in REQUIRED:
+            problems.append(f"{name}: {err['msg']}")
+    if settings is not None:
+        for name in require:
+            value = getattr(settings, name.lower())
+            if value is None or (isinstance(value, str) and not value.strip()):
                 problems.append(f"{name} is required but not set")
-            else:
-                problems.append(f"{name}: {err['msg']}")
+    if problems:
         raise ConfigError(
             "Invalid configuration (set these in backend/.env; see backend/.env.example):\n  - "
             + "\n  - ".join(problems)
-        ) from None
+        )
+    return settings

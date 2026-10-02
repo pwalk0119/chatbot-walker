@@ -8,7 +8,7 @@ from pathlib import Path
 
 import psycopg
 
-from src.config import ConfigError, get_settings
+from src.config import DATABASE_ONLY, ConfigError, get_settings
 
 MIGRATIONS_DIR = Path(__file__).resolve().parent / "migrations"
 
@@ -52,7 +52,7 @@ def apply_migrations(database_url: str) -> list[str]:
 
 def main() -> int:
     try:
-        settings = get_settings()
+        settings = get_settings(require=DATABASE_ONLY)
     except ConfigError as exc:
         print(exc, file=sys.stderr)
         return 1
